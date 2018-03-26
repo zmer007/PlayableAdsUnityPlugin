@@ -17,17 +17,22 @@ public class PlayableAdsAdapter {
 
     private static final String TAG = "PlayableAdsAdapter";
     private static WeakReference<PlayableAds> instanceRef = null;
+    private static boolean autoload = true;
+    private static int cacheCount = 1;
 
     public static void InitPA(final Activity activity, final String appId) {
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                instanceRef = new WeakReference<>(PlayableAds.init(activity, appId));
+               instanceRef.get().setAutoLoadAd(autoload);
+               instanceRef.get().setCacheCountPerUnitId(cacheCount);
             }
         });
     }
 
     public static void AutoloadAd(boolean autoload) {
+        PlayableAdsAdapter.autoload = autoload;
         if (instanceRef == null || instanceRef.get() == null){
             Log.e(TAG, "AutoloadAd: PlayableAds instance is null");
             return;
@@ -36,6 +41,7 @@ public class PlayableAdsAdapter {
     }
 
     public static void CacheCountPerUnitId(int count) {
+        cacheCount = count;
         if (instanceRef == null || instanceRef.get() == null){
             Log.e(TAG, "CacheCountPerUnitId: PlayableAds instance is null");
             return;
