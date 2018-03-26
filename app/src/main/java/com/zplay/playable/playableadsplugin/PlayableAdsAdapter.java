@@ -27,6 +27,22 @@ public class PlayableAdsAdapter {
         });
     }
 
+    public static void AutoloadAd(boolean autoload) {
+        if (instanceRef == null || instanceRef.get() == null){
+            Log.e(TAG, "AutoloadAd: PlayableAds instance is null");
+            return;
+        }
+        instanceRef.get().setAutoLoadAd(autoload);
+    }
+
+    public static void CacheCountPerUnitId(int count) {
+        if (instanceRef == null || instanceRef.get() == null){
+            Log.e(TAG, "CacheCountPerUnitId: PlayableAds instance is null");
+            return;
+        }
+        instanceRef.get().setCacheCountPerUnitId(count);
+    }
+
     public static void RequestAd(String adUnitId, final String objectName) {
         if (instanceRef == null || instanceRef.get() == null){
             Log.e(TAG, "RequestAd: PlayableAds instance is null");
@@ -72,6 +88,10 @@ public class PlayableAdsAdapter {
             @Override
             public void playableAdsIncentive() {
                 UnityPlayer.UnitySendMessage(objectName, "PlayableAdsIncentive", "incentive");
+            }
+
+            @Override
+            public void onLandingPageInstallBtnClicked() {
             }
 
             @Override
