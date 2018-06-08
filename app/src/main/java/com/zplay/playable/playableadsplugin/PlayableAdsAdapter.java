@@ -24,16 +24,16 @@ public class PlayableAdsAdapter {
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-               instanceRef = new WeakReference<>(PlayableAds.init(activity, appId));
-               instanceRef.get().setAutoLoadAd(autoload);
-               instanceRef.get().setCacheCountPerUnitId(cacheCount);
+                instanceRef = new WeakReference<>(PlayableAds.init(activity, appId));
+                instanceRef.get().setAutoLoadAd(autoload);
+                instanceRef.get().setCacheCountPerUnitId(cacheCount);
             }
         });
     }
 
     public static void AutoloadAd(boolean autoload) {
         PlayableAdsAdapter.autoload = autoload;
-        if (instanceRef == null || instanceRef.get() == null){
+        if (instanceRef == null || instanceRef.get() == null) {
             Log.e(TAG, "AutoloadAd: PlayableAds instance is null");
             return;
         }
@@ -42,7 +42,7 @@ public class PlayableAdsAdapter {
 
     public static void CacheCountPerUnitId(int count) {
         cacheCount = count;
-        if (instanceRef == null || instanceRef.get() == null){
+        if (instanceRef == null || instanceRef.get() == null) {
             Log.e(TAG, "CacheCountPerUnitId: PlayableAds instance is null");
             return;
         }
@@ -50,7 +50,7 @@ public class PlayableAdsAdapter {
     }
 
     public static void RequestAd(String adUnitId, final String objectName) {
-        if (instanceRef == null || instanceRef.get() == null){
+        if (instanceRef == null || instanceRef.get() == null) {
             Log.e(TAG, "RequestAd: PlayableAds instance is null");
             return;
         }
@@ -69,51 +69,60 @@ public class PlayableAdsAdapter {
     }
 
     public static void PresentAd(String adUnitId, final String objectName) {
-        if (instanceRef == null || instanceRef.get() == null){
+        Log.d(TAG, "PresentAd: 0");
+        if (instanceRef == null || instanceRef.get() == null) {
             Log.e(TAG, "RequestAd: PlayableAds instance is null");
             return;
         }
-
+        Log.d(TAG, "PresentAd: 1");
         PlayableAds ads = instanceRef.get();
 
         if (!ads.canPresentAd(adUnitId)) {
             UnityPlayer.UnitySendMessage(objectName, "OnPresentError", "cache not finished");
             return;
         }
+        Log.d(TAG, "PresentAd: 2" + adUnitId + ":" + ads);
         ads.presentPlayableAD(adUnitId, new PlayLoadingListener() {
             @Override
             public void onVideoStart() {
+                Log.d(TAG, "onVideoStart: ");
                 UnityPlayer.UnitySendMessage(objectName, "PlayableAdsMessage", "video start");
             }
 
             @Override
             public void onVideoFinished() {
+                Log.d(TAG, "onVideoFinished: ");
                 UnityPlayer.UnitySendMessage(objectName, "PlayableAdsMessage", "video finished");
             }
 
             @Override
             public void playableAdsIncentive() {
+                Log.d(TAG, "playableAdsIncentive: ");
                 UnityPlayer.UnitySendMessage(objectName, "PlayableAdsIncentive", "incentive");
             }
 
             @Override
             public void onLandingPageInstallBtnClicked() {
+                Log.d(TAG, "onLandingPageInstallBtnClicked: ");
+                UnityPlayer.UnitySendMessage(objectName, "PlayableAdsInstallButtonClicked", "install button clicked");
             }
 
             @Override
             public void onAdClosed() {
-                UnityPlayer.UnitySendMessage(objectName, "PlayableAdClosed", "");
+                Log.d(TAG, "onAdClosed: ");
+                UnityPlayer.UnitySendMessage(objectName, "PlayableAdClosed", "ad closed");
             }
 
             @Override
             public void onAdsError(int i, String s) {
+                Log.d(TAG, "onAdsError: ");
                 UnityPlayer.UnitySendMessage(objectName, "OnPresentError", "error code: " + i + "\nmsg: " + s);
             }
         });
     }
 
     public static boolean canPresentAd(String adUnitId) {
-        if (instanceRef == null || instanceRef.get() == null){
+        if (instanceRef == null || instanceRef.get() == null) {
             Log.e(TAG, "RequestAd: PlayableAds instance is null");
             return false;
         }
