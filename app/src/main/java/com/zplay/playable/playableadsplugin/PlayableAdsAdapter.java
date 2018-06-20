@@ -19,6 +19,7 @@ public class PlayableAdsAdapter {
     private static WeakReference<PlayableAds> instanceRef = null;
     private static boolean autoload = true;
     private static int cacheCount = 1;
+    private static String channelId = "";
 
     public static void InitPA(final Activity activity, final String appId) {
         activity.runOnUiThread(new Runnable() {
@@ -27,6 +28,7 @@ public class PlayableAdsAdapter {
                 instanceRef = new WeakReference<>(PlayableAds.init(activity, appId));
                 instanceRef.get().setAutoLoadAd(autoload);
                 instanceRef.get().setCacheCountPerUnitId(cacheCount);
+                instanceRef.get().setChannelId(channelId);
             }
         });
     }
@@ -69,53 +71,44 @@ public class PlayableAdsAdapter {
     }
 
     public static void PresentAd(String adUnitId, final String objectName) {
-        Log.d(TAG, "PresentAd: 0");
         if (instanceRef == null || instanceRef.get() == null) {
             Log.e(TAG, "RequestAd: PlayableAds instance is null");
             return;
         }
-        Log.d(TAG, "PresentAd: 1");
         PlayableAds ads = instanceRef.get();
 
         if (!ads.canPresentAd(adUnitId)) {
             UnityPlayer.UnitySendMessage(objectName, "OnPresentError", "cache not finished");
             return;
         }
-        Log.d(TAG, "PresentAd: 2" + adUnitId + ":" + ads);
         ads.presentPlayableAD(adUnitId, new PlayLoadingListener() {
             @Override
             public void onVideoStart() {
-                Log.d(TAG, "onVideoStart: ");
                 UnityPlayer.UnitySendMessage(objectName, "PlayableAdsMessage", "video start");
             }
 
             @Override
             public void onVideoFinished() {
-                Log.d(TAG, "onVideoFinished: ");
                 UnityPlayer.UnitySendMessage(objectName, "PlayableAdsMessage", "video finished");
             }
 
             @Override
             public void playableAdsIncentive() {
-                Log.d(TAG, "playableAdsIncentive: ");
                 UnityPlayer.UnitySendMessage(objectName, "PlayableAdsIncentive", "incentive");
             }
 
             @Override
             public void onLandingPageInstallBtnClicked() {
-                Log.d(TAG, "onLandingPageInstallBtnClicked: ");
                 UnityPlayer.UnitySendMessage(objectName, "PlayableAdsInstallButtonClicked", "install button clicked");
             }
 
             @Override
             public void onAdClosed() {
-                Log.d(TAG, "onAdClosed: ");
                 UnityPlayer.UnitySendMessage(objectName, "PlayableAdClosed", "ad closed");
             }
 
             @Override
             public void onAdsError(int i, String s) {
-                Log.d(TAG, "onAdsError: ");
                 UnityPlayer.UnitySendMessage(objectName, "OnPresentError", "error code: " + i + "\nmsg: " + s);
             }
         });
@@ -127,6 +120,14 @@ public class PlayableAdsAdapter {
             return false;
         }
         return instanceRef.get().canPresentAd(adUnitId);
+    }
+
+    public static void setChannelId(String channelId) {
+        PlayableAdsAdapter.channelId = channelId;
+        if (instanceRef == null || instanceRef.get() == null) {
+            return;
+        }
+        instanceRef.get().setChannelId(channelId);
     }
 
 }
